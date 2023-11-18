@@ -6,8 +6,30 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ilammy/msvc-dev-cmd@v1
-      - name: Clone source
+      - uses: actions/cache@v3
+        with:
+          path: |
+            VCPKG_DEFAULT_BINARY_CACHE
+            %LOCALAPPDATA%\vcpkg\archives
+            %APPDATA%\vcpkg\archives
+          key: ${{ runner.os }}-vcpkg-bin-cache
+
+      - name: Build ANGLE
         working-directory: ${{github.workspace}}
         shell: pwsh
-        run: |
-            vcpkg
+        run: vcpkg install angle:x64-windows-static
+
+      - name: Export ANGLE
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: vcpkg export angle:x64-windows-static --raw --output-dir=. --output=angle-x64-windows-static
+
+      - name: Package ANGLE
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: 7z a -y -mx9 angle-x64-windows-static.7z ./angle-x64-windows-static/
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: angle-x64-windows-static
+          path: angle-x64-windows-static.7z
