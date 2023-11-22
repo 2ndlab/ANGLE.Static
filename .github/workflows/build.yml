@@ -6,13 +6,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ilammy/msvc-dev-cmd@v1
-      - uses: actions/cache@v3
-        with:
-          path: |
-            VCPKG_DEFAULT_BINARY_CACHE
-            %LOCALAPPDATA%\vcpkg\archives
-            %APPDATA%\vcpkg\archives
-          key: ${{ runner.os }}-vcpkg-bin-cache
+      - name: Prepare DirectX SDK
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: |
+          mkdir -p directx && cd $_
+          git init && git remote add origin https://github.com/hrydgard/minidx9
+          git fetch --depth 1 origin master
+          git checkout -q FETCH_HEAD
+          cd Lib/x64
+          rm -rf D3DCSXd.lib d3dx9d.lib d3dx10d.lib d3dx11d.lib xapobased.lib
+
+      - name: Link DirectX SDK
+        working-directory: ${{github.workspace}}
+        shell: cmd
+        run: lib /out:dxstatic.lib directx/Lib/x64/*.lib
+
+      - name: Link Windows SDK
+        working-directory: ${{github.workspace}}
+        shell: pwsh
+        run: lib /out:winstatic.lib $env:WindowsSdkDir\Lib\$env:WindowsSDKVersion\um\x64\User32.Lib $env:WindowsSdkDir\Lib\$env:WindowsSDKVersion\um\x64\Gdi32.Lib
 
       - name: Build ANGLE
         working-directory: ${{github.workspace}}
@@ -24,12 +37,27 @@ jobs:
         shell: pwsh
         run: vcpkg export angle:x64-windows-static --raw --output-dir=. --output=angle-x64-windows-static
 
+      - name: Link ANGLE
+        working-directory: ${{github.workspace}}
+        shell: cmd
+        run: lib /out:libangle.lib angle-x64-windows-static/installed/x64-windows-static/lib/*.lib
+
+      - name: Link av_libglesv2.lib
+        working-directory: ${{github.workspace}}
+        shell: cmd
+        run: lib /out:av_libglesv2.lib libangle.lib winstatic.lib dxstatic.lib
+
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
         shell: pwsh
-        run: 7z a -y -mx9 angle-x64-windows-static.7z ./angle-x64-windows-static/
+        run: |
+          7z a -y -mx9 angle-x64-windows-static-$env:UCRTVersion.7z ./angle-x64-windows-static/
+          7z a -y -mx9 av_libglesv2-$env:UCRTVersion.7z ./av_libglesv2.lib
 
       - uses: actions/upload-artifact@v3
         with:
-          name: angle-x64-windows-static
-          path: angle-x64-windows-static.7z
+          path: angle-x64-windows-static-$env:UCRTVersion.7z
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: av_libglesv2-$env:UCRTVersion.7z
