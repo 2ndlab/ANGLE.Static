@@ -6,6 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ilammy/msvc-dev-cmd@v1
+
       - name: Prepare DirectX SDK
         working-directory: ${{github.workspace}}
         shell: bash
@@ -54,14 +55,17 @@ jobs:
           7z a -y -mx9 angle-x64-windows-static-$env:UCRTVersion.7z ./angle-x64-windows-static/
           7z a -y -mx9 av_libglesv2-$env:UCRTVersion.7z ./av_libglesv2.lib
 
-      - uses: actions/upload-artifact@v3
-        with:
-          path: angle-x64-windows-static-${{env.UCRTVersion}}.7z
-        env:
-          UCRTVersion: $env:UCRTVersion
+      - name: Create MD5
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: |
+          md5sum angle-x64-windows-static-$env:UCRTVersion.7z > angle-x64-windows-static-$env:UCRTVersion.7z.md5
+          md5sum av_libglesv2-$env:UCRTVersion.7z > av_libglesv2-$env:UCRTVersion.7z.md5
 
       - uses: actions/upload-artifact@v3
         with:
-          path: av_libglesv2-${{env.UCRTVersion}}.7z
-        env:
-          UCRTVersion: $env:UCRTVersion
+          path: |
+            angle-x64-windows-static-${{env.UCRTVersion}}.7z
+            angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
+            av_libglesv2-${{env.UCRTVersion}}.7z
+            av_libglesv2-${{env.UCRTVersion}}.7z.md5
