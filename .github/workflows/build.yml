@@ -59,8 +59,8 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          md5sum angle-x64-windows-static-$env:UCRTVersion.7z > angle-x64-windows-static-$env:UCRTVersion.7z.md5
-          md5sum av_libglesv2-$env:UCRTVersion.7z > av_libglesv2-$env:UCRTVersion.7z.md5
+          md5sum angle-x64-windows-static-$UCRTVersion.7z > angle-x64-windows-static-$UCRTVersion.7z.md5
+          md5sum av_libglesv2-$UCRTVersion.7z > av_libglesv2-$UCRTVersion.7z.md5
 
       - uses: actions/upload-artifact@v3
         with:
