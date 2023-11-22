@@ -64,8 +64,16 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          path: |
-            angle-x64-windows-static-${{env.UCRTVersion}}.7z
-            angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
-            av_libglesv2-${{env.UCRTVersion}}.7z
-            av_libglesv2-${{env.UCRTVersion}}.7z.md5
+          path: angle-x64-windows-static-${{env.UCRTVersion}}.7z
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: av_libglesv2-${{env.UCRTVersion}}.7z
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: av_libglesv2-${{env.UCRTVersion}}.7z.md5
