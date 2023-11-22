@@ -56,8 +56,12 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          path: angle-x64-windows-static-$env:UCRTVersion.7z
+          path: angle-x64-windows-static-${{env.UCRTVersion}}.7z
+        env:
+          UCRTVersion: $env:UCRTVersion
 
       - uses: actions/upload-artifact@v3
         with:
-          path: av_libglesv2-$env:UCRTVersion.7z
+          path: av_libglesv2-${{env.UCRTVersion}}.7z
+        env:
+          UCRTVersion: $env:UCRTVersion
