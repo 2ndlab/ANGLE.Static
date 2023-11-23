@@ -58,12 +58,12 @@ jobs:
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
-        run: md5sum angle-x64-windows-static-$UCRTVersion.7z > $_.md5
+        run: md5sum angle-x64-windows-static-$UCRTVersion.7z > angle-x64-windows-static-$UCRTVersion.7z.md5
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
-        run: md5sum av_libglesv2-$UCRTVersion.7z > $_.md5
+        run: md5sum av_libglesv2-$UCRTVersion.7z > av_libglesv2-$UCRTVersion.7z.md5
 
       - name: List dir
         working-directory: ${{github.workspace}}
