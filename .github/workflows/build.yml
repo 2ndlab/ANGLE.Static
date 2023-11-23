@@ -58,22 +58,34 @@ jobs:
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
-        run: |
-          md5sum angle-x64-windows-static-$UCRTVersion.7z > $_.md5
-          md5sum av_libglesv2-$UCRTVersion.7z > $_.md5
+        run: md5sum angle-x64-windows-static-$UCRTVersion.7z > $_.md5
+
+      - name: Create MD5
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: md5sum av_libglesv2-$UCRTVersion.7z > $_.md5
+
+      - name: List dir
+        working-directory: ${{github.workspace}}
+        shell: bash
+        run: ls -al .
 
       - uses: actions/upload-artifact@v3
         with:
+          name: angle-x64-windows-static-${{env.UCRTVersion}}.7z
           path: angle-x64-windows-static-${{env.UCRTVersion}}.7z
 
       - uses: actions/upload-artifact@v3
         with:
+          name: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
           path: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
 
       - uses: actions/upload-artifact@v3
         with:
+          name: av_libglesv2-${{env.UCRTVersion}}.7z
           path: av_libglesv2-${{env.UCRTVersion}}.7z
 
       - uses: actions/upload-artifact@v3
         with:
+          name: av_libglesv2-${{env.UCRTVersion}}.7z.md5
           path: av_libglesv2-${{env.UCRTVersion}}.7z.md5
