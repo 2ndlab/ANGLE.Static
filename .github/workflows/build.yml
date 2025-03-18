@@ -4,9 +4,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: actions/checkout@v4
 
+      - uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          
       - name: Prepare DirectX SDK
         working-directory: ${{github.workspace}}
         shell: bash
@@ -22,11 +25,6 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: cmd
         run: lib /out:dxstatic.lib directx/Lib/x64/*.lib
-
-      - name: Link Windows SDK
-        working-directory: ${{github.workspace}}
-        shell: pwsh
-        run: lib /out:winstatic.lib $env:WindowsSdkDir\Lib\$env:WindowsSDKVersion\um\x64\User32.Lib $env:WindowsSdkDir\Lib\$env:WindowsSDKVersion\um\x64\Gdi32.Lib
 
       - name: Build ANGLE
         working-directory: ${{github.workspace}}
@@ -46,7 +44,7 @@ jobs:
       - name: Link av_libglesv2.lib
         working-directory: ${{github.workspace}}
         shell: cmd
-        run: lib /out:av_libglesv2.lib libangle.lib winstatic.lib dxstatic.lib
+        run: lib /out:av_libglesv2.lib libangle.lib dxstatic.lib
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
@@ -67,28 +65,28 @@ jobs:
         shell: bash
         run: ls -al .
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: angle-x64-windows-static-${{env.UCRTVersion}}.7z
           path: angle-x64-windows-static-${{env.UCRTVersion}}.7z
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
           path: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: av_libglesv2-${{env.UCRTVersion}}.7z
           path: av_libglesv2-${{env.UCRTVersion}}.7z
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: av_libglesv2-${{env.UCRTVersion}}.7z.md5
           path: av_libglesv2-${{env.UCRTVersion}}.7z.md5
 
       - name: Release artifacts
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
