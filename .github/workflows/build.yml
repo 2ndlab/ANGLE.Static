@@ -5,8 +5,7 @@ on:
       - ".github/workflows/build.yml"
       - "args.gn"
       - "patch/**"
-env:
-  DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+
 jobs:
   build:
     runs-on: windows-latest
@@ -25,16 +24,27 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git config --global depot-tools.allowGlobalGitConfig true
+
       - name: Create Dir
         shell: bash
         run: |
           mkdir -p angle
           mkdir -p out/windows/x64
           mv args.gn out/windows/x64
+
       - name: clone depot_tools
         run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 -no-tags --single-branch
+
+      - name: Setup PATH and ENV
+        run: |
           echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
+          echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
 
       - name: Clone source
         working-directory: ${{github.workspace}}
@@ -53,9 +63,9 @@ jobs:
         # git diff --patch > chromium-7151.patch
         run: |
           cd angle
-          git apply ${{github.workspace}}/patch/chromium-7151.patch
-          gn gen ${{github.workspace}}/out/windows/x64
-          autoninja -C ${{github.workspace}}/out/windows/x64 libANGLE_static libGLESv2_static
+          git apply $env:GITHUB_WORKSPACE/patch/chromium-7151.patch
+          gn gen $env:GITHUB_WORKSPACE/out/windows/x64
+          autoninja -C $env:GITHUB_WORKSPACE/out/windows/x64 libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
