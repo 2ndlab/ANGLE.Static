@@ -39,7 +39,7 @@ jobs:
 
       - name: clone depot_tools
         run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 -no-tags --single-branch
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 --no-tags --single-branch
 
       - name: Setup PATH and ENV
         run: |
