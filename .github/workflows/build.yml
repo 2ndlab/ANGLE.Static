@@ -51,7 +51,7 @@ jobs:
         run: |
           cd $BuildDir/obj
           7z a -y -mx9 $ANGLEStaticName.7z libANGLE_static.lib libGLESv2_static.lib
-          mv $ANGLEStaticName.7z $env:GITHUB_WORKSPACE
+          mv $ANGLEStaticName.7z $GITHUB_WORKSPACE
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
