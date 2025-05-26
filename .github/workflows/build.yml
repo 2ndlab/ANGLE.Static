@@ -62,7 +62,7 @@ jobs:
 
       - name: Build ANGLE
         working-directory: ${{github.workspace}}
-        shell: bash
+        shell: pwsh
         # git diff --patch > chromium-7151.patch
         run: |
           Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
