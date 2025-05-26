@@ -4,6 +4,7 @@ on:
     paths:
       - ".github/workflows/build.yml"
       - "args.gn"
+      - "BUILD.gn"
       - "patch/**"
 
 jobs:
@@ -55,7 +56,7 @@ jobs:
           git init && git remote add origin https://github.com/google/angle.git
           git fetch --depth 1 origin chromium/7151
           git checkout chromium/7151
-          git apply -v ../patch/chromium-7151.patch
+          git apply -v ../patch/chromium-7151-deps.patch
           python.exe scripts\bootstrap.py
           gclient sync -f -D -R
 
@@ -64,6 +65,7 @@ jobs:
         shell: bash
         # git diff --patch > chromium-7151.patch
         run: |
+          Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
           cd angle
           gn gen $env:GITHUB_WORKSPACE/out/windows/x64
           autoninja -C $env:GITHUB_WORKSPACE/out/windows/x64 libANGLE_static libGLESv2_static
