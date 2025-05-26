@@ -1,0 +1,23 @@
+diff --git a/BUILD.gn b/BUILD.gn
+index 07e1268a57..25f7cba544 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -1472,7 +1472,18 @@ if (angle_has_frame_capture) {
+   }
+ }
+ 
++angle_static_library("libANGLE_static") {
++  complete_static_lib = true
++  public_deps = [ ":libANGLE" ]
++}
++
++angle_static_library("libANGLE_with_capture_static") {
++  complete_static_lib = true
++  public_deps = [ ":libANGLE_with_capture" ]
++}
++
+ angle_static_library("libGLESv2_static") {
++  complete_static_lib = true
+   sources = libglesv2_sources
+   if (angle_enable_cl) {
+     sources += libglesv2_cl_sources
