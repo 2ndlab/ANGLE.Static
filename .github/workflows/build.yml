@@ -53,7 +53,7 @@ jobs:
           cd angle
           git init && git remote add origin https://github.com/google/angle.git
           git fetch --depth 1 origin chromium/7151
-          git checkout --recurse-submodules -q FETCH_HEAD
+          git checkout chromium/7151
           git apply ../patch/chromium-7151.patch
           python.exe scripts\bootstrap.py
           gclient sync -f -D -R
