@@ -2,7 +2,7 @@ name: build
 on:
   push:
     paths:
-      - ".github/workflows/build.yml"
+      - ".github/workflows/**"
       - "args.gn"
       - "BUILD.gn"
       - "patch/**"
@@ -10,44 +10,19 @@ env:
   ANGLE_Branch: 7151
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
-      - uses: TheMrMilchmann/setup-msvc-dev@v3
-        with:
-          arch: x64
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git config --global core.autocrlf false
-          git config --global depot-tools.allowGlobalGitConfig true
-
+      - run: echo $env:ANGLEStaticName
+      
       - name: Create Dir
         shell: bash
         run: |
           mkdir -p angle
           mkdir -p out/windows/x64
           mv args.gn out/windows/x64
-
-      - name: clone depot_tools
-        run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1 --no-tags --single-branch
-
-      - name: Setup PATH and ENV
-        run: |
-          echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
-          echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
 
       - name: Clone source
         working-directory: ${{github.workspace}}
