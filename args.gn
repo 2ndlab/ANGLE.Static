@@ -1,0 +1,22 @@
+# Set build arguments here. See `gn help buildargs`.
+is_official_build = false
+is_component_build = false
+is_clang = false
+is_debug = false
+
+angle_is_msvc = true
+symbol_level = 0
+use_custom_libcxx = false
+use_lld = false
+use_thin_lto = false
+
+chrome_pgo_phase = false
+
+angle_build_tests = false
+build_angle_deqp_tests = false
+
+angle_enable_swiftshader = false
+angle_enable_wgpu = false
+angle_enable_vulkan = false
+
+windows_sdk_version = "10.0.26100.0"

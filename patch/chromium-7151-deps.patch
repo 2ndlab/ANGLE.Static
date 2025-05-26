@@ -1,0 +1,64 @@
+diff --git a/DEPS b/DEPS
+index 9085ba513e..565840a832 100644
+--- a/DEPS
++++ b/DEPS
+@@ -696,11 +696,6 @@ deps = {
+       'dep_type': 'cipd',
+   },
+ 
+-  'third_party/catapult': {
+-    'url': Var('chromium_git') + '/catapult.git' + '@' + Var('catapult_revision'),
+-    'condition': 'not build_with_chromium',
+-  },
+-
+   # Cherry is a dEQP/VK-GL-CTS management GUI written in Go. We use it for viewing test results.
+   'third_party/cherry': {
+     'url': Var('android_git') + '/platform/external/cherry@4f8fb08d33ca5ff05a1c638f04c85bbb8d8b52cc',
+@@ -722,12 +717,6 @@ deps = {
+     'condition': 'checkout_android and not build_with_chromium',
+   },
+ 
+-
+-  'third_party/dawn': {
+-    'url': Var('dawn_git') + '/dawn.git' + '@' +  Var('dawn_revision'),
+-    'condition': 'not build_with_chromium'
+-  },
+-
+   'third_party/depot_tools': {
+     'url': Var('chromium_git') + '/chromium/tools/depot_tools.git@1fcc527019d786502b02f71b8b764ee674a40953',
+     'condition': 'not build_with_chromium',
+@@ -809,11 +798,6 @@ deps = {
+     'condition': 'not build_with_chromium',
+   },
+ 
+-  'third_party/llvm/src': {
+-    'url': Var('chromium_git') + '/external/github.com/llvm/llvm-project@1fd8d3fea53e6e4573cdce55bd38ef0a7813a442',
+-    'condition': 'not build_with_chromium',
+-  },
+-
+   'third_party/jdk': {
+       'packages': [
+           {
+@@ -1000,11 +984,6 @@ deps = {
+     'condition': 'checkout_android and not build_with_chromium',
+   },
+ 
+-  'third_party/SwiftShader': {
+-    'url': Var('swiftshader_git') + '/SwiftShader@7905fa19e456df5aa8e2233a7ec5832c9c6c287b',
+-    'condition': 'not build_with_chromium',
+-  },
+-
+   'third_party/turbine/cipd': {
+       'packages': [
+           {
+@@ -1016,10 +995,6 @@ deps = {
+       'dep_type': 'cipd',
+   },
+ 
+-  'third_party/VK-GL-CTS/src': {
+-    'url': Var('chromium_git') + '/external/github.com/KhronosGroup/VK-GL-CTS' + '@' + Var('vk_gl_cts_revision'),
+-  },
+-
+   'third_party/vulkan-deps': {
+     'url': Var('chromium_git') + '/vulkan-deps@b9aab6c35f37e6532011ddab976c3ca71819c074',
+     'condition': 'not build_with_chromium',
