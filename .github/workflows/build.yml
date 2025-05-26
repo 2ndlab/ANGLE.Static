@@ -34,6 +34,7 @@ jobs:
       - name: clone depot_tools
         run: |
           git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1
+          echo "$env:GITHUB_WORKSPACE\depot_tools" >> $env:GITHUB_PATH
 
       - name: Clone source
         working-directory: ${{github.workspace}}
@@ -44,7 +45,7 @@ jobs:
           git fetch --depth 1 origin chromium/7151
           git checkout --recurse-submodules -q FETCH_HEAD
           python.exe scripts\bootstrap.py
-          ../depot_tools/gclient.bat sync
+          gclient sync -f -D -R
 
       - name: Build ANGLE
         working-directory: ${{github.workspace}}
@@ -53,8 +54,8 @@ jobs:
         run: |
           cd angle
           git apply ${{github.workspace}}/patch/chromium-7151.patch
-          ../depot_tools/gn.bat gen ${{github.workspace}}/out/windows/x64
-          ../depot_tools/autoninja.bat -C ${{github.workspace}}/out/windows/x64 libANGLE_static libGLESv2_static
+          gn gen ${{github.workspace}}/out/windows/x64
+          autoninja -C ${{github.workspace}}/out/windows/x64 libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
