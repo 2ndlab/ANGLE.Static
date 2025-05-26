@@ -1,5 +1,12 @@
 name: build
-on: [push]
+on:
+  push:
+    paths:
+      - ".github/workflows/build.yml"
+      - "args.gn"
+      - "patch/**"
+env:
+  DEPOT_TOOLS_WIN_TOOLCHAIN: 0
 jobs:
   build:
     runs-on: windows-latest
@@ -9,56 +16,59 @@ jobs:
       - uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
-          
-      - name: Prepare DirectX SDK
-        working-directory: ${{github.workspace}}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create Dir
         shell: bash
         run: |
-          mkdir -p directx && cd $_
-          git init && git remote add origin https://github.com/hrydgard/minidx9
-          git fetch --depth 1 origin master
-          git checkout -q FETCH_HEAD
-          cd Lib/x64
-          rm -rf D3DCSXd.lib d3dx9d.lib d3dx10d.lib d3dx11d.lib xapobased.lib
+          mkdir -p angle
+          mkdir -p out/windows/x64
+          mv args.gn out/windows/x64
+      - name: clone depot_tools
+        run: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1
+          [Environment]::SetEnvironmentVariable('Path', "[Environment]::GetEnvironmentVariable('Path', 'User');${{github.workspace}}/depot_tools", 'User')
 
-      - name: Link DirectX SDK
+      - name: Clone source
         working-directory: ${{github.workspace}}
-        shell: cmd
-        run: lib /out:dxstatic.lib directx/Lib/x64/*.lib
+        shell: pwsh
+        run: |
+          cd angle
+          git init && git remote add origin https://github.com/google/angle.git
+          git fetch --depth 1 origin chromium/7151
+          git checkout --recurse-submodules -q FETCH_HEAD
+          python.exe scripts\bootstrap.py
+          gclient sync
 
       - name: Build ANGLE
         working-directory: ${{github.workspace}}
-        shell: pwsh
-        run: vcpkg install angle:x64-windows-static
-
-      - name: Export ANGLE
-        working-directory: ${{github.workspace}}
-        shell: pwsh
-        run: vcpkg export angle:x64-windows-static --raw --output-dir=. --output=angle-x64-windows-static
-
-      - name: Link ANGLE
-        working-directory: ${{github.workspace}}
-        shell: cmd
-        run: lib /out:libangle.lib angle-x64-windows-static/installed/x64-windows-static/lib/*.lib
-
-      - name: Link av_libglesv2.lib
-        working-directory: ${{github.workspace}}
-        shell: cmd
-        run: lib /out:av_libglesv2.lib libangle.lib dxstatic.lib
+        shell: bash
+        # git diff --patch > chromium-7151.patch
+        run: |
+          cd angle
+          git apply ${{github.workspace}}/patch/chromium-7151.patch
+          gn gen ${{github.workspace}}/out/windows/x64
+          autoninja -C ${{github.workspace}}/out/windows/x64 libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
         shell: pwsh
         run: |
-          7z a -y -mx9 angle-x64-windows-static-$env:UCRTVersion.7z ./angle-x64-windows-static/
-          7z a -y -mx9 av_libglesv2-$env:UCRTVersion.7z ./av_libglesv2.lib
+          cd out/windows/x64
+          7z a -y -mx9 angle-x64-windows-static-$env:UCRTVersion.7z libANGLE_static.lib libGLESv2_static.lib
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
           md5sum angle-x64-windows-static-$UCRTVersion.7z > angle-x64-windows-static-$UCRTVersion.7z.md5
-          md5sum av_libglesv2-$UCRTVersion.7z > av_libglesv2-$UCRTVersion.7z.md5
 
       - name: List dir
         working-directory: ${{github.workspace}}
@@ -75,16 +85,6 @@ jobs:
           name: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
           path: angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: av_libglesv2-${{env.UCRTVersion}}.7z
-          path: av_libglesv2-${{env.UCRTVersion}}.7z
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: av_libglesv2-${{env.UCRTVersion}}.7z.md5
-          path: av_libglesv2-${{env.UCRTVersion}}.7z.md5
-
       - name: Release artifacts
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -92,5 +92,3 @@ jobs:
           files: |
             angle-x64-windows-static-${{env.UCRTVersion}}.7z
             angle-x64-windows-static-${{env.UCRTVersion}}.7z.md5
-            av_libglesv2-${{env.UCRTVersion}}.7z
-            av_libglesv2-${{env.UCRTVersion}}.7z.md5
