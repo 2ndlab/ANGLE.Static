@@ -64,4 +64,4 @@ jobs:
         shell: bash
         run: ls -al .
 
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/deploy
