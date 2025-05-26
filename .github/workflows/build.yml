@@ -7,7 +7,7 @@ on:
       - "BUILD.gn"
       - "patch/**"
 env:
-  ANGLE-Branch: 7151
+  ANGLE_Branch: 7151
 jobs:
   build:
     runs-on: windows-latest
@@ -55,9 +55,9 @@ jobs:
         run: |
           cd angle
           git init && git remote add origin https://github.com/google/angle.git
-          git fetch --depth 1 origin chromium/$ANGLE-Branch
-          git checkout chromium/$ANGLE-Branch
-          git apply -v ../patch/chromium-$ANGLE-Branch-deps.patch
+          git fetch --depth 1 origin chromium/$ANGLE_Branch
+          git checkout chromium/$ANGLE_Branch
+          git apply -v ../patch/chromium-$ANGLE_Branch-deps.patch
           python.exe scripts/bootstrap.py
           gclient sync -f -D -R
 
@@ -76,14 +76,14 @@ jobs:
         shell: pwsh
         run: |
           cd out/windows/x64/obj
-          7z a -y -mx9 angle-x64-windows-static-chromium-$env:ANGLE-Branch-$env:UCRTVersion.7z libANGLE_static.lib libGLESv2_static.lib
-          mv angle-x64-windows-static-chromium-$env:ANGLE-Branch-$env:UCRTVersion.7z $env:GITHUB_WORKSPACE
+          7z a -y -mx9 angle-x64-windows-static-chromium-$env:ANGLE_Branch-$env:UCRTVersion.7z libANGLE_static.lib libGLESv2_static.lib
+          mv angle-x64-windows-static-chromium-$env:ANGLE_Branch-$env:UCRTVersion.7z $env:GITHUB_WORKSPACE
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          md5sum angle-x64-windows-static-chromium-$ANGLE-Branch-$UCRTVersion.7z > angle-x64-windows-static-chromium-$ANGLE-Branch-$UCRTVersion.7z.md5
+          md5sum angle-x64-windows-static-chromium-$ANGLE_Branch-$UCRTVersion.7z > angle-x64-windows-static-chromium-$ANGLE_Branch-$UCRTVersion.7z.md5
 
       - name: List dir
         working-directory: ${{github.workspace}}
@@ -92,18 +92,18 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: angle-x64-windows-static-chromium-${{env.ANGLE-Branch}}-${{env.UCRTVersion}}.7z
-          path: angle-x64-windows-static-chromium-${{env.ANGLE-Branch}}-${{env.UCRTVersion}}.7z
+          name: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z
+          path: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z
 
       - uses: actions/upload-artifact@v4
         with:
-          name: angle-x64-windows-static-chromium-${{env.ANGLE-Branch}}-${{env.UCRTVersion}}.7z.md5
-          path: angle-x64-windows-static-chromium-${{env.ANGLE-Branch}}-${{env.UCRTVersion}}.7z.md5
+          name: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z.md5
+          path: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z.md5
 
       - name: Release artifacts
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            angle-x64-windows-static-chromium-${{env.ANGLE-Branch}}-${{env.UCRTVersion}}.7z
-            angle-x64-windows-static-chromium-${{env.ANGLE-Branch}}-${{env.UCRTVersion}}.7z.md5
+            angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z
+            angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z.md5
