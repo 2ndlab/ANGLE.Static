@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - ".github/workflows/**"
+      - ".github/actions/**"
       - "args.gn"
       - "BUILD.gn"
       - "patch/**"
@@ -15,14 +16,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
-      - run: echo $env:ANGLEStaticName
-      
       - name: Create Dir
         shell: bash
         run: |
           mkdir -p angle
-          mkdir -p out/windows/x64
-          mv args.gn out/windows/x64
+          mkdir -p $BuildDir
+          mv args.gn $BuildDir
 
       - name: Clone source
         working-directory: ${{github.workspace}}
@@ -43,42 +42,26 @@ jobs:
         run: |
           Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
           cd angle
-          gn gen $env:GITHUB_WORKSPACE/out/windows/x64
-          autoninja -C $env:GITHUB_WORKSPACE/out/windows/x64 libANGLE_static libGLESv2_static
+          gn gen $env:BuildDir
+          autoninja -C $env:BuildDir libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
         shell: pwsh
         run: |
-          cd out/windows/x64/obj
-          7z a -y -mx9 angle-x64-windows-static-chromium-$env:ANGLE_Branch-$env:UCRTVersion.7z libANGLE_static.lib libGLESv2_static.lib
-          mv angle-x64-windows-static-chromium-$env:ANGLE_Branch-$env:UCRTVersion.7z $env:GITHUB_WORKSPACE
+          cd $env:BuildDir/obj
+          7z a -y -mx9 $env:ANGLEStaticName.7z libANGLE_static.lib libGLESv2_static.lib
+          mv $env:ANGLEStaticName.7z $env:GITHUB_WORKSPACE
 
       - name: Create MD5
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          md5sum angle-x64-windows-static-chromium-$ANGLE_Branch-$UCRTVersion.7z > angle-x64-windows-static-chromium-$ANGLE_Branch-$UCRTVersion.7z.md5
+          md5sum $ANGLEStaticName.7z > $ANGLEStaticName.7z.md5
 
       - name: List dir
         working-directory: ${{github.workspace}}
         shell: bash
         run: ls -al .
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z
-          path: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z.md5
-          path: angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z.md5
-
-      - name: Release artifacts
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z
-            angle-x64-windows-static-chromium-${{env.ANGLE_Branch}}-${{env.UCRTVersion}}.7z.md5
+      - uses: ./.github/actions/setup
