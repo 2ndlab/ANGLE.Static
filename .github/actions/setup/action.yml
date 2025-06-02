@@ -19,7 +19,7 @@ runs:
     - name: Setup depot tools
       uses: 2ndlab/actions@main
       with:
-        path: setup-depot-tools
+        path: ./setup-depot-tools
 
     - name: Setup PATH and ENV
       shell: pwsh
