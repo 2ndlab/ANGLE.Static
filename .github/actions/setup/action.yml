@@ -17,7 +17,9 @@ runs:
       uses: astral-sh/setup-uv@v6
 
     - name: Setup depot tools
-      uses: 2ndlab/actions/setup-depot-tools@main
+      uses: 2ndlab/actions@main
+      with:
+        path: setup-depot-tools
 
     - name: Setup PATH and ENV
       shell: pwsh
