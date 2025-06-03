@@ -23,17 +23,33 @@ jobs:
           mkdir -p $BuildDir
           mv args.gn $BuildDir
 
-      - name: Clone source
-        working-directory: ${{github.workspace}}
+      - name: Check src cache
+        working-directory: angle
+        if: steps.src-cache-restore.outputs.cache-hit != 'true'
+        run: git init && git remote add origin https://github.com/google/angle.git
+
+      - name: Fetch source
+        working-directory: angle
         shell: bash
         run: |
-          cd angle
-          git init && git remote add origin https://github.com/google/angle.git
           git fetch --depth 1 origin chromium/$ANGLE_Branch
           git checkout chromium/$ANGLE_Branch
-          git apply -v ../patch/chromium-$ANGLE_Branch-deps.patch
-          python.exe scripts/bootstrap.py
+          git apply -v $GITHUB_WORKSPACE/patch/chromium-$ANGLE_Branch-deps.patch
+          uv run --python 3.12 -- python scripts/bootstrap.py
           gclient sync -f -D -R
+
+      - name: Save src cache immediately
+        id: src-cache-save
+        if: always() && steps.src-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.src-cache-restore.outputs.cache-primary-key }}
+          path: |
+            angle/.git
+            angle/build
+            angle/buildtools
+            angle/third_party
+            angle/tools
 
       - name: Build ANGLE
         working-directory: ${{github.workspace}}
