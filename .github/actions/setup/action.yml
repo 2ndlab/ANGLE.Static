@@ -1,5 +1,16 @@
 name: Setup action
 description: Setup build action
+outputs:
+  restore-src-cache-hit:
+    description: "Source restore-src-cache-hit status"
+    value: ${{ steps.restore-src-cache.outputs.cache-hit }}
+  restore-src-cache-primary-key:
+    description: "Source restore-src-cache-primary-key status"
+    value: ${{ steps.restore-src-cache.outputs.cache-primary-key }}
+  build-cache-hit:
+    description: "Source build-cache-hit status"
+    value: ${{ steps.build-cache.outputs.build-cache-hit }}
+
 runs:
   using: "composite"
   steps:
@@ -14,7 +25,7 @@ runs:
         key: ${{ runner.os }}-build-cache
 
     - uses: actions/cache/restore@v4
-      id: src-cache-restore
+      id: restore-src-cache
       with:
         path: |
           angle/.git

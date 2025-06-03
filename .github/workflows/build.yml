@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    runs-on: windows-2025 
+    runs-on: windows-2025
     permissions:
       id-token: write
       attestations: write
@@ -20,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+        id: setup
 
       - name: Create Dir
         shell: bash
@@ -30,7 +31,7 @@ jobs:
 
       - name: Check src cache
         working-directory: angle
-        if: steps.src-cache-restore.outputs.cache-hit != 'true'
+        if: steps.setup.outputs.restore-src-cache-hit != 'true'
         run: git init && git remote add origin https://github.com/google/angle.git
 
       - name: Fetch source
@@ -44,11 +45,11 @@ jobs:
           gclient sync -f -D -R
 
       - name: Save src cache immediately
-        id: src-cache-save
-        if: always() && steps.src-cache-restore.outputs.cache-hit != 'true'
+        id: save-src-cache
+        if: always() && steps.setup.outputs.restore-src-cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          key: ${{ runner.os }}-src-cache
+          key: ${{ steps.setup.outputs.restore-src-cache-primary-key }}
           path: |
             angle/.git
             angle/build
@@ -64,7 +65,7 @@ jobs:
 
       - name: Check build cache
         working-directory: angle
-        if: steps.build-cache.outputs.cache-hit != 'true'
+        if: steps.setup.outputs.build-cache-hit != 'true'
         run: gn gen $env:BuildDir
 
       - name: Build ANGLE
