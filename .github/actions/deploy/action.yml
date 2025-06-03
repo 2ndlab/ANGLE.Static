@@ -9,11 +9,6 @@ runs:
         name: ${{env.ANGLEStaticName}}.7z
         path: ${{env.ANGLEStaticName}}.7z
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ${{env.ANGLEStaticName}}.7z.md5
-        path: ${{env.ANGLEStaticName}}.7z.md5
-
     - uses: actions/attest-build-provenance@v2
       with:
         subject-name: ${{env.ANGLEStaticName}}.7z
@@ -25,4 +20,3 @@ runs:
       with:
         files: |
           ${{env.ANGLEStaticName}}.7z
-          ${{env.ANGLEStaticName}}.7z.md5
