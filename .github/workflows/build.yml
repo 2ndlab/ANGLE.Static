@@ -59,7 +59,7 @@ jobs:
           Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
           cd angle
           gn gen $env:BuildDir
-          autoninja -C $env:BuildDir libANGLE_static libGLESv2_static
+          autoninja -C $env:BuildDir -v -d explain libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
