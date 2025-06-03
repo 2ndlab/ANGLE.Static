@@ -24,17 +24,6 @@ runs:
         path: out/windows/x64
         key: ${{ runner.os }}-build-cache
 
-    - uses: actions/cache/restore@v4
-      id: restore-src-cache
-      with:
-        path: |
-          angle/.git
-          angle/build
-          angle/buildtools
-          angle/third_party
-          angle/tools
-        key: ${{ runner.os }}-src-cache
-
     - name: Install uv
       uses: astral-sh/setup-uv@v6
 

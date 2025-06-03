@@ -29,17 +29,25 @@ jobs:
           mkdir -p $BuildDir
           mv args.gn $BuildDir
 
-      - name: Check src cache
+      - name: Fetch source
         working-directory: angle
         shell: bash
-        if: steps.setup.outputs.restore-src-cache-hit != 'true'
         run: |
-          if [ ! -d ".git" ]; then
-            git init && git remote add origin https://github.com/google/angle.git
-          fi
+          git init && git remote add origin https://github.com/google/angle.git
           git fetch --depth 1 origin chromium/$ANGLE_Branch
           git checkout chromium/$ANGLE_Branch
           git apply -v ../patch/chromium-$ANGLE_Branch-deps.patch
+
+      - name: Restore source cache
+        uses: actions/cache/restore@v4
+        id: restore-src-cache
+        with:
+          path: |
+            angle/build
+            angle/buildtools
+            angle/third_party
+            angle/tools
+          key: ${{ runner.os }}-src-cache
 
       - name: Sync source
         working-directory: angle
@@ -55,7 +63,6 @@ jobs:
         with:
           key: ${{ steps.setup.outputs.restore-src-cache-primary-key }}
           path: |
-            angle/.git
             angle/build
             angle/buildtools
             angle/third_party
