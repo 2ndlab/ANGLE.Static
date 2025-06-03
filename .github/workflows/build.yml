@@ -20,13 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-        id: setup
-
-      - uses: actions/cache@v4
-        id: build-cache
-        with:
-          path: out/windows/x64
-          key: ${{ runner.os }}-build-cache
 
       - name: Create Dir
         shell: bash
@@ -53,7 +46,7 @@ jobs:
             angle/buildtools
             angle/third_party
             angle/tools
-          key: ${{ runner.os }}-src-cache
+          key: ${{ runner.os }}-src-cache-${{ env.ANGLE_Branch }}
 
       - name: Sync source
         working-directory: angle
@@ -80,20 +73,12 @@ jobs:
         # git diff --patch > chromium-7151.patch
         run: Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
 
-      - name: Check build cache
-        working-directory: angle
-        if: steps.build-cache.outputs.cache-hit != 'true'
-        run: gn gen $env:BuildDir
-
-      - name: Fix gn enable ninja restat default
-        shell: bash
-        if: steps.build-cache.outputs.cache-hit == 'true'
-        run: find $BuildDir -type f -exec touch {} +
-
       - name: Build ANGLE
         working-directory: angle
         shell: pwsh
-        run: autoninja -C $env:BuildDir -v -d explain libANGLE_static libGLESv2_static
+        run: | 
+          gn gen $env:BuildDir
+          autoninja -C $env:BuildDir -v -d explain libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
