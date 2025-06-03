@@ -43,7 +43,7 @@ jobs:
         if: always() && steps.src-cache-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          key: ${{ steps.src-cache-restore.outputs.cache-primary-key }}
+          key: ${{ runner.os }}-skia-src-cache-${{ github.sha }}
           path: |
             angle/.git
             angle/build
