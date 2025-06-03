@@ -22,6 +22,7 @@ runs:
           angle/third_party
           angle/tools
         key: ${{ runner.os }}-skia-src-cache-${{ github.sha }}
+        restore-keys: ${{ runner.os }}-skia-src-cache-
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
