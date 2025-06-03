@@ -22,6 +22,12 @@ jobs:
       - uses: ./.github/actions/setup
         id: setup
 
+      - uses: actions/cache@v4
+        id: build-cache
+        with:
+          path: out/windows/x64
+          key: ${{ runner.os }}-build-cache
+
       - name: Create Dir
         shell: bash
         run: |
@@ -58,10 +64,10 @@ jobs:
 
       - name: Save src cache immediately
         id: save-src-cache
-        if: always() && steps.setup.outputs.restore-src-cache-hit != 'true'
+        if: always() && steps.restore-src-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          key: ${{ steps.setup.outputs.restore-src-cache-primary-key }}
+          key: ${{ steps.restore-src-cache.outputs.cache-primary-key }}
           path: |
             angle/build
             angle/buildtools
@@ -76,7 +82,7 @@ jobs:
 
       - name: Check build cache
         working-directory: angle
-        if: steps.setup.outputs.build-cache-hit != 'true'
+        if: steps.build-cache.outputs.cache-hit != 'true'
         run: gn gen $env:BuildDir
 
       - name: Build ANGLE
