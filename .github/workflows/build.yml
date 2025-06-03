@@ -85,6 +85,11 @@ jobs:
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: gn gen $env:BuildDir
 
+      - name: Fix gn enable ninja restat default
+        shell: bash
+        if: steps.build-cache.outputs.cache-hit = 'true'
+        run: find $BuildDir -type f -exec touch {} +
+
       - name: Build ANGLE
         working-directory: angle
         shell: pwsh
@@ -97,12 +102,6 @@ jobs:
           cd $BuildDir/obj
           7z a -y -mx9 $ANGLEStaticName.7z libANGLE_static.lib libGLESv2_static.lib
           mv $ANGLEStaticName.7z $GITHUB_WORKSPACE
-
-      - name: Create MD5
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          md5sum $ANGLEStaticName.7z > $ANGLEStaticName.7z.md5
 
       - name: List dir
         working-directory: ${{github.workspace}}
