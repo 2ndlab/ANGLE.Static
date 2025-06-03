@@ -9,9 +9,14 @@ on:
       - "patch/**"
 env:
   ANGLE_Branch: 7151
+
 jobs:
   build:
-    runs-on: windows-2025
+    runs-on: windows-2025 
+    permissions:
+      id-token: write
+      attestations: write
+
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
