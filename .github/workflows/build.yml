@@ -87,7 +87,7 @@ jobs:
 
       - name: Fix gn enable ninja restat default
         shell: bash
-        if: steps.build-cache.outputs.cache-hit = 'true'
+        if: steps.build-cache.outputs.cache-hit == 'true'
         run: find $BuildDir -type f -exec touch {} +
 
       - name: Build ANGLE
