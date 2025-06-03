@@ -31,16 +31,20 @@ jobs:
 
       - name: Check src cache
         working-directory: angle
+        shell: bash
         if: steps.setup.outputs.restore-src-cache-hit != 'true'
-        run: git init && git remote add origin https://github.com/google/angle.git
+        run: |
+          if [ ! -d ".git" ]; then
+            git init && git remote add origin https://github.com/google/angle.git
+          fi
+          git fetch --depth 1 origin chromium/$ANGLE_Branch
+          git checkout chromium/$ANGLE_Branch
+          git apply -v ../patch/chromium-$ANGLE_Branch-deps.patch
 
-      - name: Fetch source
+      - name: Sync source
         working-directory: angle
         shell: bash
         run: |
-          git fetch --depth 1 origin chromium/$ANGLE_Branch
-          git checkout chromium/$ANGLE_Branch
-          git apply -v $GITHUB_WORKSPACE/patch/chromium-$ANGLE_Branch-deps.patch
           uv run --python 3.12 -- python scripts/bootstrap.py
           gclient sync -f -D -R
 
