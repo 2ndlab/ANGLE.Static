@@ -43,7 +43,7 @@ jobs:
         if: always() && steps.src-cache-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          key: ${{ runner.os }}-skia-src-cache-${{ github.sha }}
+          key: ${{ runner.os }}-src-cache
           path: |
             angle/.git
             angle/build
@@ -51,15 +51,21 @@ jobs:
             angle/third_party
             angle/tools
 
-      - name: Build ANGLE
+      - name: Move Build.gn
         working-directory: ${{github.workspace}}
         shell: pwsh
         # git diff --patch > chromium-7151.patch
-        run: |
-          Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
-          cd angle
-          gn gen $env:BuildDir
-          autoninja -C $env:BuildDir -v -d explain libANGLE_static libGLESv2_static
+        run: Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
+
+      - name: Check build cache
+        working-directory: angle
+        if: steps.build-cache.outputs.cache-hit != 'true'
+        run: gn gen $env:BuildDir
+
+      - name: Build ANGLE
+        working-directory: angle
+        shell: pwsh
+        run: autoninja -C $env:BuildDir -v -d explain libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
