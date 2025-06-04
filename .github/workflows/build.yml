@@ -9,9 +9,14 @@ on:
       - "patch/**"
 env:
   ANGLE_Branch: 7151
+
 jobs:
   build:
     runs-on: windows-2025
+    permissions:
+      id-token: write
+      attestations: write
+
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -23,25 +28,55 @@ jobs:
           mkdir -p $BuildDir
           mv args.gn $BuildDir
 
-      - name: Clone source
-        working-directory: ${{github.workspace}}
+      - name: Fetch source
+        working-directory: angle
         shell: bash
         run: |
-          cd angle
           git init && git remote add origin https://github.com/google/angle.git
           git fetch --depth 1 origin chromium/$ANGLE_Branch
           git checkout chromium/$ANGLE_Branch
           git apply -v ../patch/chromium-$ANGLE_Branch-deps.patch
-          python.exe scripts/bootstrap.py
+
+      - name: Restore source cache
+        uses: actions/cache/restore@v4
+        id: restore-src-cache
+        with:
+          path: |
+            angle/build
+            angle/buildtools
+            angle/third_party
+            angle/tools
+          key: ${{ runner.os }}-src-cache-${{ env.ANGLE_Branch }}
+
+      - name: Sync source
+        working-directory: angle
+        shell: bash
+        run: |
+          uv run --python 3.12 -- python scripts/bootstrap.py
           gclient sync -f -D -R
 
-      - name: Build ANGLE
+      - name: Save src cache immediately
+        id: save-src-cache
+        if: always() && steps.restore-src-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.restore-src-cache.outputs.cache-primary-key }}
+          path: |
+            angle/build
+            angle/buildtools
+            angle/third_party
+            angle/tools
+
+      - name: Move Build.gn
         working-directory: ${{github.workspace}}
         shell: pwsh
         # git diff --patch > chromium-7151.patch
+        run: Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
+
+      - name: Build ANGLE
+        working-directory: angle
+        shell: pwsh
         run: |
-          Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
-          cd angle
           gn gen $env:BuildDir
           autoninja -C $env:BuildDir libANGLE_static libGLESv2_static
 
@@ -52,12 +87,6 @@ jobs:
           cd $BuildDir/obj
           7z a -y -mx9 $ANGLEStaticName.7z libANGLE_static.lib libGLESv2_static.lib
           mv $ANGLEStaticName.7z $GITHUB_WORKSPACE
-
-      - name: Create MD5
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          md5sum $ANGLEStaticName.7z > $ANGLEStaticName.7z.md5
 
       - name: List dir
         working-directory: ${{github.workspace}}

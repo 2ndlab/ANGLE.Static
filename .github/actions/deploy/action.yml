@@ -4,14 +4,15 @@ runs:
   using: "composite"
   steps:
     - uses: actions/upload-artifact@v4
+      id: upload-artifact-1
       with:
         name: ${{env.ANGLEStaticName}}.7z
         path: ${{env.ANGLEStaticName}}.7z
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/attest-build-provenance@v2
       with:
-        name: ${{env.ANGLEStaticName}}.7z.md5
-        path: ${{env.ANGLEStaticName}}.7z.md5
+        subject-name: ${{env.ANGLEStaticName}}.7z
+        subject-digest: sha256:${{ steps.upload-artifact-1.outputs.artifact-digest }}
 
     - name: Release artifacts
       uses: softprops/action-gh-release@v2
@@ -19,4 +20,3 @@ runs:
       with:
         files: |
           ${{env.ANGLEStaticName}}.7z
-          ${{env.ANGLEStaticName}}.7z.md5
