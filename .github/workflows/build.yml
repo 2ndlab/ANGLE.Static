@@ -76,9 +76,9 @@ jobs:
       - name: Build ANGLE
         working-directory: angle
         shell: pwsh
-        run: | 
+        run: |
           gn gen $env:BuildDir
-          autoninja -C $env:BuildDir -v -d explain libANGLE_static libGLESv2_static
+          autoninja -C $env:BuildDir libANGLE_static libGLESv2_static
 
       - name: Package ANGLE
         working-directory: ${{github.workspace}}
