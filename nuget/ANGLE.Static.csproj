@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0-windows7.0</TargetFramework>
         <IncludeBuildOutput>false</IncludeBuildOutput>
-        <BuildDir>$(MSBuildThisFileDirectory)../out/windows/x64</BuildDir>
+        <BuildDir>$(MSBuildThisFileDirectory)../out/windows/x64/obj</BuildDir>
     </PropertyGroup>
 
     <PropertyGroup>
