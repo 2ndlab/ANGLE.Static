@@ -7,6 +7,10 @@ on:
       - "args.gn"
       - "BUILD.gn"
       - "patch/**"
+      - "nuget/**"
+defaults:
+  run:
+    shell: nu {0}
 env:
   ANGLE_Branch: 7151
 
@@ -21,77 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-
-      - name: Create Dir
-        shell: bash
-        run: |
-          mkdir -p angle
-          mkdir -p $BuildDir
-          mv args.gn $BuildDir
-
-      - name: Fetch source
-        working-directory: angle
-        shell: bash
-        run: |
-          git init && git remote add origin https://github.com/google/angle.git
-          git fetch --depth 1 origin chromium/$ANGLE_Branch
-          git checkout chromium/$ANGLE_Branch
-          git apply -v ../patch/chromium-$ANGLE_Branch-deps.patch
-
-      - name: Restore source cache
-        uses: actions/cache/restore@v4
-        id: restore-src-cache
-        with:
-          path: |
-            angle/build
-            angle/buildtools
-            angle/third_party
-            angle/tools
-          key: ${{ runner.os }}-src-cache-${{ env.ANGLE_Branch }}
-
-      - name: Sync source
-        working-directory: angle
-        shell: bash
-        run: |
-          uv run --python 3.12 -- python scripts/bootstrap.py
-          gclient sync -f -D -R
-
-      - name: Save src cache immediately
-        id: save-src-cache
-        if: always() && steps.restore-src-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ steps.restore-src-cache.outputs.cache-primary-key }}
-          path: |
-            angle/build
-            angle/buildtools
-            angle/third_party
-            angle/tools
-
-      - name: Move Build.gn
-        working-directory: ${{github.workspace}}
-        shell: pwsh
-        # git diff --patch > chromium-7151.patch
-        run: Move-Item -Path "BUILD.gn" -Destination "angle/" -Force
-
-      - name: Build ANGLE
-        working-directory: angle
-        shell: pwsh
-        run: |
-          gn gen $env:BuildDir
-          autoninja -C $env:BuildDir libANGLE_static libGLESv2_static
-
-      - name: Package ANGLE
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          cd $BuildDir/obj
-          7z a -y -mx9 $ANGLEStaticName.7z libANGLE_static.lib libGLESv2_static.lib
-          mv $ANGLEStaticName.7z $GITHUB_WORKSPACE
-
-      - name: List dir
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: ls -al .
-
+      - uses: ./.github/actions/build
       - uses: ./.github/actions/deploy
+        with:
+          NUGET_KEY: ${{ secrets.NUGET_KEY }}

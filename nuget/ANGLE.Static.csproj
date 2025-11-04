@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows7.0</TargetFramework>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <BuildDir>$(MSBuildThisFileDirectory)../out/windows/x64/obj</BuildDir>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>2ndLAB.ANGLE.Static</PackageId>
+        <Version>2.1.0</Version>
+        <Authors>2ndLAB</Authors>
+        <Description>ANGLE static library for Avalonia</Description>
+        <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/2ndlab/ANGLE.Static</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/2ndlab/ANGLE.Static</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="buildTransitive/$(PackageId).targets" Pack="true" PackagePath="buildTransitive" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(BuildDir)/libANGLE_static.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>libANGLE_static.lib</Link>
+        </None>
+        <None Include="$(BuildDir)/libGLESv2_static.lib"
+            Pack="true"
+            PackagePath="runtimes/win-x64/native/">
+            <Link>libGLESv2_static.lib</Link>
+        </None>
+    </ItemGroup>
+</Project>

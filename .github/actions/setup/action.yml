@@ -4,6 +4,10 @@ description: Setup build action
 runs:
   using: "composite"
   steps:
+    - uses: hustcer/setup-nu@main
+      with:
+        version: "*"
+
     - uses: TheMrMilchmann/setup-msvc-dev@v3
       with:
         arch: x64
@@ -15,7 +19,14 @@ runs:
       uses: 2ndlab/actions/setup-depot-tools@main
 
     - name: Setup PATH and ENV
-      shell: pwsh
+      shell: nu {0}
       run: |
-        echo "ANGLEStaticName=angle-x64-windows-static-chromium-$env:ANGLE_Branch-$env:UCRTVersion" >> $env:GITHUB_ENV
-        echo "BuildDir=$env:GITHUB_WORKSPACE/out/windows/x64" >> $env:GITHUB_ENV
+        let count = (git rev-list --count HEAD | into int)
+        let hash = (git rev-parse --short HEAD)
+        let build = $"($count).($hash)"
+        [
+            $"BuildVersion=($build)"
+            $"ANGLEStaticName=angle-x64-windows-static-chromium-($env.ANGLE_Branch)-($env.UCRTVersion)-($build)"
+            $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64/"
+            $"PackageName=2ndLAB.ANGLE.Static.($env.ANGLE_Branch).0.0-($env.UCRTVersion)-($build)"
+        ] | str join (char newline) | save --append $env.GITHUB_ENV
