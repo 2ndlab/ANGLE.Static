@@ -28,5 +28,5 @@ runs:
             $"BuildVersion=($build)"
             $"ANGLEStaticName=angle-x64-windows-static-chromium-($env.ANGLE_Branch)-($env.UCRTVersion)-($build)"
             $"BuildDir=($env.GITHUB_WORKSPACE)/out/windows/x64/"
-            $"PackageName=2ndLAB.ANGLE.Static.($env.ANGLE_Branch)-($env.UCRTVersion)-($build)"
+            $"PackageName=2ndLAB.ANGLE.Static.($env.ANGLE_Branch).0.0-($env.UCRTVersion)-($build)"
         ] | str join (char newline) | save --append $env.GITHUB_ENV
