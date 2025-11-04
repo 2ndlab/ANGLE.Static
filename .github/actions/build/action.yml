@@ -66,7 +66,7 @@ runs:
       working-directory: ${{github.workspace}}
       shell: nu {0}
       run: |
-        cd $env.BuildDir/obj
+        cd $"($env.BuildDir)/obj"
         7z a -y -mx9 $env.ANGLEStaticName.7z libANGLE_static.lib libGLESv2_static.lib
         mv $env.ANGLEStaticName.7z $env.GITHUB_WORKSPACE
 
