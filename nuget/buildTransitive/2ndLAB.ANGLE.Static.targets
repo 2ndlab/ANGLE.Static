@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <_ANGLEStaticRoot>$(MSBuildThisFileDirectory)../</_ANGLEStaticRoot>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(PublishAot)' == 'true'">
+        <NativeLibrary Include="$(_ANGLEStaticRoot)runtimes/win-x64/native/libANGLE_static.lib" />
+        <NativeLibrary Include="$(_ANGLEStaticRoot)runtimes/win-x64/native/libGLESv2_static.lib" />
+    </ItemGroup>
+</Project>
